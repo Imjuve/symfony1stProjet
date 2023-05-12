@@ -9,8 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-
-
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 #[Route('/admin/article', name: 'admin_article')]
 class ArticleController extends AbstractController
@@ -34,7 +33,7 @@ class ArticleController extends AbstractController
         );
     }
     #[Route('/create', name: '_create', methods: ['GET', 'POST'])]
-    public function create(Request $request): Response
+    public function create(Request $request): Response|RedirectResponse
     {
         $article = new Article();
 
@@ -54,4 +53,29 @@ class ArticleController extends AbstractController
             'form' => $form
         ]);
     }
+
+    #[Route('/update/{id}', name: '_update', methods: ['GET', 'POST'])]
+    public function update(?Article $article, Request $request): Response|RedirectResponse
+    {
+        if (!$article instanceof Article) {
+            $this->addFlash('error', 'Article not Found');
+
+            return $this->redirectToRoute('admin_article_index');
+        }
+
+        $form = $this->createForm(ArticleType::class, $article);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->repo->save($article, true);
+
+            $this->addFlash('succes', 'Article odified successfully');
+
+            return $this->redirectToRoute('admin_article_index');
+        }
+        return $this->render('Backend/Article/update.html.twig', [
+            'form' => $form,
+        ]);
+    }
+   
 }

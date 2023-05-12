@@ -21,7 +21,7 @@ class Article
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length:255, unique: true)]
+    #[ORM\Column(length: 255, unique: true)]
     #[Assert\Length(
         min: 5,
         max: 255,

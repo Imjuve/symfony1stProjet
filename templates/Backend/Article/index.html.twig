@@ -5,8 +5,24 @@
 {% endblock %}
 
 {% block body %}
-    <section class="container mt-4">
-        <h1 class="text-center">Administration des articles</h1>
-        <a href="{{ path('admin_article_create')}}" class="btn btn-secondary">Créer un article</a>
-    </section>
+	<section class="container mt-4">
+		<h1 class="text-center">Administration des articles</h1>
+		<a href="{{ path('admin_article_create')}}" class="btn btn-secondary">Créer un article</a>
+		<div class="row g-2 mt-4">
+			{% for article in articles %}
+				<div class="col-md-4">
+					<div class="card">
+						<h2 class="card-header">{{ article.titre }}</h2>
+						<div class="card-body">
+							<p class="card-text">{{ article.contenu }}</p>
+							<div class="d-flex justify-content-between">
+								<a href="{{path('admin_article_update',{'id': article.id})}}" class="btn btn-warning">Modifier</a>
+								<a href="#" class="btn btn-danger">Supprimer</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</section>
 {% endblock %}
