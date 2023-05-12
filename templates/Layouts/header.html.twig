@@ -13,12 +13,25 @@
 					</li>
 				</ul>
 			</div>
-			<div class="navbar-nav ms-auto">
-				
+			<div class="navbar-nav ms-auto gap-2">
+
 				{% if app.user  %}
-					<a href="{{path('app_logout')}}" class="btn btn-danger">Déconnexion</a>
+					{% if is_granted('ROLE_ADMIN') %}
+						<div class="dropdown">
+							<button class="btn btn-secondary dropdown-toggle" type="button" id="triggerId" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								Admin
+							</button>
+							<div class="dropdown-menu" aria-labelledby="triggerId">
+								<a class="dropdown-item" href="{{path('admin_article_index')}}">Article</a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href="#">Users</a>
+							</div>
+						</div>
+					{% endif %}
+					<a href="{{path('app_logout')}}" class="btn btn-danger me-3">Déconnexion</a>
 				{% else %}
 					<a href="{{path('app_login')}}" class="btn btn-light">Connexion</a>
+
 				{% endif %}
 
 
