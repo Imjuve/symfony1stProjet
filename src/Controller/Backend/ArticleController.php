@@ -77,5 +77,20 @@ class ArticleController extends AbstractController
             'form' => $form,
         ]);
     }
-   
+    
+    #[Route('/delete/{id}',name: '_delete', methods: ['POST', 'DELETE'])]
+    public function delete(?Article $article, Request $request): RedirectResponse
+    {
+        if(!$article instanceof Article) {
+            $this->addFlash('error', 'Article not found');
+            return $this->redirectToRoute('admin_article_index');
+        }
+
+        if($this->isCsrfTokenValid('delete'. $article->getId(), $request->request->get('token'))){
+            $this->repo->remove($article, true);
+
+            $this->addFlash('success', 'Article deleted successfully');
+            return $this->redirectToRoute('admin_article_index');
+        }
+    }
 }
