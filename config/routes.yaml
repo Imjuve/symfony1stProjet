@@ -4,6 +4,5 @@ controllers:
         namespace: App\Controller
     type: attribute
 
-app_logout:
+app.logout:
     path: /logout
-

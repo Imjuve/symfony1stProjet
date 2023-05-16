@@ -6,14 +6,14 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ArticleRepository;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
-
 #[UniqueEntity(fields: ['titre'], message: 'Ce titre est déjà utilisé par un autre article')]
-
+#[Vich\Uploadable]
 class Article
 {
     #[ORM\Id]
@@ -25,14 +25,14 @@ class Article
     #[Assert\Length(
         min: 5,
         max: 255,
-        minMessage: 'Le titre ne peut pas avoir moins de {{ limit }} caractères.',
-        maxMessage: 'Le titre ne peux pas avoir plus de  {{ limit }} caractères.'
+        minMessage: 'Le titre ne peux pas être inferieur à {{ limit }} caractères.',
+        maxMessage: 'Le titre ne peux pas être supérieur à {{ limit }} caractères.'
     )]
-    #[Assert\NotBlank(message: 'Le titre ne peut pas être vide')]
+    #[Assert\NotBlank(message: 'Le titre ne peux pas être vide')]
     private ?string $titre = null;
 
     #[ORM\Column(length: 255)]
-    #[Gedmo\Slug(fields: ['titre',])]
+    #[Gedmo\Slug(fields: ['titre'])]
     private ?string $slug = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -45,6 +45,23 @@ class Article
     #[ORM\Column]
     #[Gedmo\Timestampable(on: 'update')]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\ManyToOne(inversedBy: 'articles')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
+    #[ORM\Column]
+    private ?bool $actif = null;
+
+    // NOTE: This is not a mapped field of entity metadata, just a simple property.
+    #[Vich\UploadableField(mapping: 'article', fileNameProperty: 'imageName', size: 'imageSize')]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?string $imageName = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $imageSize = null;
 
     public function getId(): ?int
     {
@@ -109,5 +126,74 @@ class Article
         $this->updatedAt = $updatedAt;
 
         return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function isActif(): ?bool
+    {
+        return $this->actif;
+    }
+
+    public function setActif(bool $actif): self
+    {
+        $this->actif = $actif;
+
+        return $this;
+    }
+
+    /**
+     * If manually uploading a file (i.e. not using Symfony Form) ensure an instance
+     * of 'UploadedFile' is injected into this setter to trigger the update. If this
+     * bundle's configuration parameter 'inject_on_load' is set to 'true' this setter
+     * must be able to accept an instance of 'File' as the bundle will inject one here
+     * during Doctrine hydration.
+     *
+     * @param File|\Symfony\Component\HttpFoundation\File\UploadedFile|null $imageFile
+     */
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            // It is required that at least one field changes if you are using doctrine
+            // otherwise the event listeners won't be called and the file is lost
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageName(?string $imageName): void
+    {
+        $this->imageName = $imageName;
+    }
+
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+
+    public function setImageSize(?int $imageSize): void
+    {
+        $this->imageSize = $imageSize;
+    }
+
+    public function getImageSize(): ?int
+    {
+        return $this->imageSize;
     }
 }

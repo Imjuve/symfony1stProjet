@@ -7,10 +7,9 @@
 
 {% block body %}
 	<h1>Homepage</h1>
-	{{ name }}
-	{{ données[1]}}
-	{{ dump(données)}}
-	{% for data in données %}
+
+	{% for data in donnees %}
 		<p>{{ data }}</p>
 	{% endfor %}
+
 {% endblock %}
