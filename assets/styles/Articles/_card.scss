@@ -18,10 +18,15 @@
             width: 90%;
             display: block;
             margin: -5em auto 0;
-            
+            object-fit: cover;
+            height: 50%;
         }
         &-content{
-            padding: 1em 2em;
+            padding: 2em 2em 1em;
+            height: calc(50% + 4em);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
     }
 
